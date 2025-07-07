@@ -1,4 +1,3 @@
-    ├── mock                       // Mock related files
     ├── config                     // Basic configuration files
     ├── src                        // Source code
     │   ├── api                    // API request files
