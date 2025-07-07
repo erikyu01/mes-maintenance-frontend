@@ -8,7 +8,7 @@
       <!-- Loading 状态 -->
       <el-result
         v-if="loading"
-        icon="loading"
+        icon="info"
         title="正在校验Cognito登录"
         sub-title="请稍候……"
       />
@@ -38,11 +38,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { callback, getCurrentUser } from '@/api/auth'
+import { callback } from '@/api/auth'
 import { gotoCognitoLogin } from '@/utils/cognito'
-import store from '@/store'
+import { useUserStore } from '../../store'
 
 const loading = ref( true )
 const error = ref( false )
@@ -50,9 +50,14 @@ const errorMsg = ref( '' )
 
 const router = useRouter()
 const route = useRoute()
+const userStore = useUserStore()
 
 const gotoCognito = () => {
   gotoCognitoLogin()
+}
+
+const goHome = () => {
+  router.replace( '/' )
 }
 
 const retry = () => {
@@ -63,9 +68,7 @@ const retry = () => {
 }
 
 const doCallback = async() => {
-  const query = route.query
   const code = route.query.code
-  console.log( 'doCallback running', query )
   console.log( 'doCallback running', code )
 
   if ( !code ) {
@@ -77,20 +80,21 @@ const doCallback = async() => {
   }
   try {
     await callback( code )
-    const resp = await getCurrentUser()
-    console.log( 'User username: ', resp.data.data.username )
-    store.commit( 'SET_USER', resp.data )
+    await userStore.GET_USER_INFO()
+    console.log( 'User username: ', userStore )
     loading.value = false
     error.value = false
+    await nextTick()
     setTimeout( () => {
       router.replace( '/' )
-    }, 0 )
+    }, 1000 )
   } catch ( err ) {
     loading.value = false
     error.value = true
     errorMsg.value =
       err?.response?.data?.message ||
       '登录回调失败，请重试或联系管理员。'
+    console.error( 'Callback error detail:', err )
   }
 }
 
