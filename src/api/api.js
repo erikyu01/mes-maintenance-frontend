@@ -5,7 +5,6 @@ import { gotoCognitoLogin } from '@/utils/cognito'
 
 // Base API URL from the .env file
 const API_URL = import.meta.env.VITE_BACKEND_URL
-
 const AUTH_API_URL = import.meta.env.VITE_USER_BACKEND_URL + '/api'
 
 const api = axios.create( {
@@ -55,13 +54,14 @@ authApi.interceptors.response.use(
       error.response &&
       error.response.status === 401 &&
       !originalRequest._retry &&
-      !WHITELIST_URLS.some( url => url.includes( originalRequest.url ) )
+      !WHITELIST_URLS.some( url => originalRequest.url.includes( url ) )
     ) {
       originalRequest._retry = true
       try {
         await authApi.post( '/auth/refresh' )
         return authApi( originalRequest )
       } catch ( refreshErr ) {
+        console.warn( 'Refresh token failed, redirecting to Cognito login.' )
         gotoCognitoLogin()
         return Promise.reject( refreshErr )
       }
