@@ -2,22 +2,23 @@
   <div class="callback-wrapper">
     <el-card class="callback-card">
       <template #header>
-        <span>登录回调处理中</span>
+        <span>Processing login callback</span>
       </template>
 
-      <!-- Loading 状态 -->
-      <el-result v-if="loading" icon="loading" title="正在校验Cognito登录" sub-title="请稍候……" />
-
-      <!-- 错误状态 -->
-      <el-result v-else-if="error" icon="error" title="回调失败" :sub-title="errorMsg">
-        <template #extra>
-          <el-button type="primary" @click="retry" :loading="loading">重试</el-button>
-          <el-button @click="goHome" style="margin-left: 1rem">返回首页</el-button>
+      <el-result v-if="loading" title="Verifying Cognito login…" sub-title="Please wait...">
+        <template #icon>
+          <el-icon><Loading /></el-icon>
         </template>
       </el-result>
 
-      <!-- 成功状态 -->
-      <el-result v-else icon="success" title="登录成功" sub-title="正在跳转主页面……" />
+      <el-result v-else-if="error" icon="error" title="Callback failed" :sub-title="errorMsg">
+        <template #extra>
+          <el-button type="primary" @click="retry" :loading="loading">Retry</el-button>
+          <el-button @click="goHome" style="margin-left: 1rem">Go Home</el-button>
+        </template>
+      </el-result>
+
+      <el-result v-else icon="success" title="Login Successfully" sub-title="The main page is being redirected..." />
     </el-card>
   </div>
 </template>
@@ -25,19 +26,24 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { callback, getCurrentUser } from '@/api/auth'
+import { callback } from '@/api/auth'
 import { gotoCognitoLogin } from '@/utils/cognito'
-import store from '@/store'
+import { useUserStore } from '@/store'
 
 const loading = ref( true )
 const error = ref( false )
 const errorMsg = ref( '' )
 
+const userStore = useUserStore()
 const router = useRouter()
 const route = useRoute()
 
 const gotoCognito = () => {
   gotoCognitoLogin()
+}
+
+const goHome = () => {
+  router.replace( '/' )
 }
 
 const retry = () => {
@@ -50,35 +56,35 @@ const retry = () => {
 const doCallback = async() => {
   const query = route.query
   const code = route.query.code
-  console.log( 'doCallback running', query )
-  console.log( 'doCallback running', code )
+  if ( import.meta.env.DEV ) {
+    console.log( 'doCallback running', query )
+    console.log( 'doCallback running', code )
+  }
 
   if ( !code ) {
     error.value = true
     loading.value = false
-    errorMsg.value = '未检测到Cognito登录code，已自动跳转首页。'
+    errorMsg.value = 'No Cognito login code detected. Redirecting to login page...'
     setTimeout( gotoCognito, 1800 )
     return
   }
   try {
     await callback( code )
-    const resp = await getCurrentUser()
-    console.log( 'User username: ', resp.data.data.username )
-    store.user = resp.data
+    await userStore.GET_USER_INFO()
     loading.value = false
     error.value = false
     setTimeout( () => {
       router.replace( '/' )
-    }, 0 )
+    }, 1000 )
   } catch ( err ) {
     loading.value = false
     error.value = true
-    errorMsg.value = err?.response?.data?.message || '登录回调失败，请重试或联系管理员。'
+    errorMsg.value = err?.response?.data?.message || err.message || 'Login callback failed. Please try again or contact the administrator.'
   }
 }
 
 onMounted( () => {
-  console.log( 'Callback page mounted!', route.query.code )
+  // console.log( 'Callback page mounted!', route.query.code )
   doCallback()
 } )
 </script>

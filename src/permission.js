@@ -1,9 +1,45 @@
 import router from './router'
-import cookies from '@/utils/cookies'
-import { TOKEN } from '@/config/constant'
 import getPageTitle from '@/utils/getPageTitle'
 import { useUserStore, usePermissionStore } from '@/store'
 import NProgress from '@/utils/progress'
+import { gotoCognitoLogin } from '@/utils/cognito'
+
+const whiteList = ['/callback', '/logout-success']
+
+router.beforeEach( async( to, from, next ) => {
+  NProgress.start()
+  document.title = getPageTitle( to.meta?.title )
+
+  const userStore = useUserStore()
+  const permissionStore = usePermissionStore()
+
+  try {
+    if ( whiteList.includes( to.path ) ) {
+      next()
+      return
+    }
+    if ( !userStore.roles.length ) {
+      // Call the backend interface /user/me
+      const userInfo = await userStore.GET_USER_INFO()
+
+      // Set the routes based on the backend role objects
+      const accessRoutes = await permissionStore.SET_ROUTES( userInfo.roles )
+      accessRoutes.forEach( route => {
+        router.addRoute( route )
+      } )
+
+      next( { ...to, redirect : true } )
+    } else {
+      next()
+    }
+  } catch ( err ) {
+    console.error( '[Permission] Failed to obtain user information. Redirecting to Cognito.', err )
+    gotoCognitoLogin()
+    NProgress.done()
+  }
+} )
+
+/*
 
 const whiteList = ['/login', '/callback']
 router.beforeEach( async( to, from, next ) => {
@@ -44,7 +80,8 @@ router.beforeEach( async( to, from, next ) => {
     }
   }
 } )
-
+*/
 router.afterEach( () => {
   NProgress.done()
 } )
+
