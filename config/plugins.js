@@ -1,12 +1,12 @@
 
 import vue from '@vitejs/plugin-vue'
 import eslintPlugin from 'vite-plugin-eslint'
-import DefineOptions from "unplugin-vue-define-options/vite"
+import DefineOptions from 'unplugin-vue-define-options/vite'
 import legacy from '@vitejs/plugin-legacy'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { viteMockServe } from 'vite-plugin-mock' // https://github.com/anncwb/vite-plugin-mock/blob/HEAD/README.zh_CN.md
 import { svgBuilder } from '../config/svgBuilder.js'
-import vueJsx from "@vitejs/plugin-vue-jsx"
+import vueJsx from '@vitejs/plugin-vue-jsx'
 
 export function composePlugins( command, VITE_LEGACY ) {
   const prodMock = true
@@ -16,14 +16,14 @@ export function composePlugins( command, VITE_LEGACY ) {
     DefineOptions(),
     vueJsx(),
     svgBuilder( './src/icons/svg/' ),
-    eslintPlugin({
-      include: ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue']
-    }),
+    eslintPlugin( {
+      include : ['src/**/*.js', 'src/**/*.vue', 'src/*.js', 'src/*.vue']
+    } ),
     // https://www.npmjs.com/package/@vitejs/plugin-legacy
     VITE_LEGACY
       ? legacy( {
-        targets: ['ie >= 11'],
-        additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+        targets : ['ie >= 11'],
+        additionalLegacyPolyfills : ['regenerator-runtime/runtime']
         // renderLegacyChunks: true,
         // polyfills: [
         //   'es.symbol',
@@ -43,20 +43,20 @@ export function composePlugins( command, VITE_LEGACY ) {
         //   'esnext.global-this',
         //   'esnext.string.match-all'
         // ]
-        } )
-      : null,
-    // https://www.npmjs.com/package/rollup-plugin-visualizer
-    lifecycle === "report"
-      ? visualizer( {
-        open: true,
-        gzipSize: true,
-        brotliSize: true,
-        filename: "report.html"
       } )
       : null,
-  
+    // https://www.npmjs.com/package/rollup-plugin-visualizer
+    lifecycle === 'report'
+      ? visualizer( {
+        open : true,
+        gzipSize : true,
+        brotliSize : true,
+        filename : 'report.html'
+      } )
+      : null,
+
     viteMockServe( {
-      mockPath: 'mock',
+      mockPath : 'mock',
       watchFiles : true,
       supportTs : false,
       localEnabled : command === 'serve',
