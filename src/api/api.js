@@ -23,7 +23,7 @@ api.interceptors.response.use(
 export const authApi = axios.create( {
   baseURL : AUTH_API_URL,
   headers : {
-    ' Content-Type ' : 'application/json'
+    'Content-Type' : 'application/json'
   },
   withCredentials : true
 } )
@@ -51,7 +51,7 @@ authApi.interceptors.response.use(
       error.response &&
       error.response.status === 401 &&
       !originalRequest._retry &&
-      !WHITELIST_URLS.some( url => url.includes( originalRequest.url ) )
+      !WHITELIST_URLS.some( url => originalRequest.url.includes( url ) )
     ) {
       originalRequest._retry = true
       try {

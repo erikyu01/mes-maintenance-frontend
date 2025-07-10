@@ -4,7 +4,7 @@ import { useUserStore, usePermissionStore } from '@/store'
 import NProgress from '@/utils/progress'
 import { gotoCognitoLogin } from '@/utils/cognito'
 
-const whiteList = ['/callback', '/logout-success']
+const whiteList = ['/callback', '/logout-success', '/refresh']
 
 router.beforeEach( async( to, from, next ) => {
   NProgress.start()
@@ -84,4 +84,3 @@ router.beforeEach( async( to, from, next ) => {
 router.afterEach( () => {
   NProgress.done()
 } )
-

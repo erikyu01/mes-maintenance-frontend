@@ -3,6 +3,7 @@ import { defineConfig, loadEnv } from 'vite'
 import path from 'path'
 import { getEnv, regExps } from './config'
 import { composePlugins } from './config/plugins'
+import fs from 'fs'
 
 function resolve( dir ) {
   return path.join( __dirname, dir )
@@ -13,6 +14,10 @@ export default defineConfig( ( { command, mode } ) => {
   const root = process.cwd()
   const env = getEnv( loadEnv( mode, process.cwd() ) )
   const { VITE_PORT, VITE_PROXY_DOMAIN, VITE_PROXY_DOMAIN_REAL, VITE_LEGACY } = env
+
+  const certPath = path.resolve(__dirname, 'certs', 'localhost-cert.pem')
+  const keyPath = path.resolve(__dirname, 'certs', 'localhost-key.pem')
+
   return {
     root,
     base : './', //
@@ -28,7 +33,10 @@ export default defineConfig( ( { command, mode } ) => {
     server : {
       host : '0.0.0.0',
       port : VITE_PORT || 9527,
-      https : false,
+      https: {
+        key: fs.readFileSync(keyPath),
+        cert: fs.readFileSync(certPath),
+      },
       open : false,
       proxy : {
         [VITE_PROXY_DOMAIN] : {

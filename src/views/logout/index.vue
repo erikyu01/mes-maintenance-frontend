@@ -6,14 +6,18 @@
       </template>
 
       <el-result
-          icon="success"
-          title="You have safely logged out"
-          :sub-title="logoutUrl ? `Redirecting to sign-out page in ${countdown} seconds…` : `Returning to home page in ${countdown} seconds…`"
+        icon="success"
+        title="You have safely logged out"
+        :sub-title="
+          logoutUrl
+            ? `Redirecting to sign-out page in ${countdown} seconds…`
+            : `Returning to home page in ${countdown} seconds…`
+        "
       />
 
       <div v-if="logoutRes" class="logout-result">
-        <span style="color:#888;font-size:0.96em;">Logout Result:</span>
-        <pre style="font-size:0.97em; text-align:left;">{{ logoutRes }}</pre>
+        <span style="color: #888; font-size: 0.96em">Logout Result:</span>
+        <pre style="font-size: 0.97em; text-align: left">{{ logoutRes }}</pre>
       </div>
     </el-card>
   </div>

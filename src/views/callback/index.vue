@@ -73,13 +73,14 @@ const doCallback = async() => {
     await userStore.GET_USER_INFO()
     loading.value = false
     error.value = false
-    setTimeout( () => {
-      router.replace( '/' )
-    }, 1000 )
+    await router.replace( '/' )
   } catch ( err ) {
     loading.value = false
     error.value = true
-    errorMsg.value = err?.response?.data?.message || err.message || 'Login callback failed. Please try again or contact the administrator.'
+    errorMsg.value =
+      err?.response?.data?.message ||
+      err.message ||
+      'Login callback failed. Please try again or contact the administrator.'
   }
 }
 

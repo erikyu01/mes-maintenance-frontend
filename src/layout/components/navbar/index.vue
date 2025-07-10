@@ -27,7 +27,7 @@
 
       <el-dropdown class="p8 avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="set.avatar" class="user-avatar" alt="avatar"/>
+          <img :src="set.avatar" class="user-avatar" alt="avatar" />
 
           <div class="username">
             {{ set.userName }}
