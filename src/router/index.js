@@ -3,8 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Layout from '@/layout/index.vue'
 // import nested from './modules/nested'
 // import customComponents from './modules/customComponents'
-import { getCurrentUser } from '@/api/auth'
-import { gotoCognitoLogin } from '@/utils/cognito'
 
 // 配置路由信息
 export const constantRoutes = [
@@ -12,6 +10,12 @@ export const constantRoutes = [
     path : '/callback',
     name : 'Callback',
     component : () => import( '@/views/callback/index.vue' ),
+    meta : { requiresAuth : false }
+  },
+  {
+    path : '/logout-success',
+    name : 'LogoutSuccess',
+    component : () => import( '@/views/logout/index.vue' ),
     meta : { requiresAuth : false }
   },
   {
@@ -34,7 +38,7 @@ export const constantRoutes = [
       }
     ]
   },
-  {
+  /*  {
     path : '/login',
     name : 'Login',
     component : () => import( '@/views/login/index.vue' ),
@@ -42,7 +46,7 @@ export const constantRoutes = [
       hidden : true,
       title : '登录'
     }
-  },
+  },*/
   {
     path : '/404',
     name : 'Error404',
@@ -336,17 +340,6 @@ const router = createRouter( {
   history : createWebHistory(),
   routes : constantRoutes.concat( asyncRoutes ),
   scrollBehavior : () => ( { left : 0, top : 0 } )
-} )
-
-router.beforeEach( async( to, from, next ) => {
-  if ( !to.meta.requiresAuth ) return next()
-  try {
-    await getCurrentUser()
-    next()
-  } catch ( error ) {
-    console.warn( '未登录或登录失效，跳 Cognito', error )
-    gotoCognitoLogin()
-  }
 } )
 
 export function resetRouter() {

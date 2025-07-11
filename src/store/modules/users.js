@@ -1,10 +1,94 @@
 import { defineStore } from 'pinia'
-import cookies from '@/utils/cookies'
-import { TOKEN, AVATAR } from '@/config/constant'
-import { logout, getInfo } from '@/api/user'
+import { logout, getCurrentUser } from '@/api/auth'
 import { resetRouter } from '@/router'
 import useTagsViewStore from './tagsView'
 
+const useUserStore = defineStore( {
+  id : 'users',
+  state : () => ( {
+    uid : '',
+    username : '',
+    firstName : '',
+    lastName : '',
+    avatar : '',
+    phone : '',
+    email : '',
+    title : '',
+    departmentId : null,
+    isVerified : false,
+    enabled : true,
+    roles : [],
+    permissions : []
+  } ),
+  actions : {
+    async GET_USER_INFO() {
+      try {
+        const { data } = await getCurrentUser()
+        // console.log( '[Pinia User] getCurrentUser data:', data )
+        const user = data.data
+        this.uid = user.id || ''
+        this.username = user.username || ''
+        this.firstName = user.first_name || ''
+        this.lastName = user.last_name || ''
+        this.avatar = user.image_path || ''
+        this.phone = user.phone_number || ''
+        this.email = user.email || ''
+        this.title = user.title || ''
+        this.departmentId = user.department_id || null
+        this.isVerified = user.is_verified || false
+        this.enabled = user.enabled ?? true
+        // roles
+        this.roles = user.roles || []
+        // Flatten all permissions
+        const permissionSet = new Set()
+        user.roles?.forEach( role => {
+          role.permissions?.forEach( permission => {
+            permissionSet.add( permission.name )
+          } )
+        } )
+        this.permissions = Array.from( permissionSet )
+        // console.log( '[Pinia User] Store State:', this.$state )
+        return {
+          uid : this.uid,
+          roles : this.roles,
+          permissions : this.permissions
+        }
+      } catch ( error ) {
+        console.error( 'Failed to obtain user information', error )
+        throw error
+      }
+    },
+    async LOGIN_OUT() {
+      try {
+        const res = await logout()
+        await this.RESET_INFO()
+        localStorage.removeItem( 'access_token' )
+        localStorage.removeItem( 'refresh_token' )
+        localStorage.removeItem( 'id_token' )
+        return res.data.data
+      } catch ( error ) {
+        await this.RESET_INFO()
+        localStorage.removeItem( 'access_token' )
+        localStorage.removeItem( 'refresh_token' )
+        localStorage.removeItem( 'id_token' )
+        throw error
+      }
+    },
+    async RESET_INFO() {
+      return new Promise( resolve => {
+        const tagsViewStore = useTagsViewStore()
+        this.$reset()
+        resetRouter()
+        tagsViewStore.DEL_ALL_VIEWS( null )
+        localStorage.removeItem( 'access_token' )
+        localStorage.removeItem( 'refresh_token' )
+        localStorage.removeItem( 'id_token' )
+        resolve()
+      } )
+    }
+  }
+} )
+/*
 const useUserStore = defineStore( {
   id : 'users',
   state : () => {
@@ -74,5 +158,5 @@ const useUserStore = defineStore( {
       } )
     }
   }
-} )
+} )*/
 export default useUserStore

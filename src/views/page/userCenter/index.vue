@@ -156,8 +156,8 @@
     </div>
     <!--  -->
     <div class="avatar-box flex-column flex-level-center flex-vertical-center">
-      <YuThumb width="150px" height="150px" :image="set.avatar">Vite Element Admin Admin Admin Admin</YuThumb>
-      <span class="user-name ellipsis"> Hi,{{ set.name || '小灰灰' }} </span>
+      <YuThumb width="150px" height="150px" :image="set.avatar">Vite Element Admin</YuThumb>
+      <span class="user-name ellipsis"> Hi,{{ set.name }} </span>
       <span class="phone">
         <span v-if="set.phone">{{ encryptionPhone(set.phone) }}</span>
         <span v-else> 你还未绑定手机 </span>
@@ -193,7 +193,7 @@ const set = reactive( {
     return userStore.avatar
   } ),
   name : computed( () => {
-    return userStore.name
+    return userStore.firstName
   } ),
   phone : computed( () => {
     return userStore.phone
@@ -202,10 +202,10 @@ const set = reactive( {
     return userStore.email
   } ),
   identity : computed( () => {
-    return userStore.identity
+    return userStore.isVerified
   } ),
   isPerfect : computed( () => {
-    return userStore.avatar && userStore.name && userStore.phone && userStore.email && userStore.identity
+    return userStore.avatar && userStore.firstName && userStore.phone && userStore.email && userStore.isVerified
   } )
 } )
 

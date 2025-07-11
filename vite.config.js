@@ -1,4 +1,3 @@
-
 import { defineConfig, loadEnv } from 'vite'
 import path from 'path'
 import { getEnv, regExps } from './config'
@@ -13,6 +12,7 @@ export default defineConfig( ( { command, mode } ) => {
   const root = process.cwd()
   const env = getEnv( loadEnv( mode, process.cwd() ) )
   const { VITE_PORT, VITE_PROXY_DOMAIN, VITE_PROXY_DOMAIN_REAL, VITE_LEGACY } = env
+
   return {
     root,
     base : './', //

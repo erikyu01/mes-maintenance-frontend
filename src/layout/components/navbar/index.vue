@@ -27,7 +27,7 @@
 
       <el-dropdown class="p8 avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="set.avatar + '?imageView2/1/w/80/h/80'" class="user-avatar" />
+          <img :src="set.avatar" class="user-avatar" alt="avatar" />
 
           <div class="username">
             {{ set.userName }}
@@ -85,6 +85,7 @@ import MenuBar from '../sidebar/Menu'
 const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
+
 const settingsStore = useSettingsStore()
 
 const toggleSideBar = () => {
@@ -105,18 +106,21 @@ const set = reactive( {
     return userStore.avatar
   } ),
   userName : computed( () => {
-    return userStore.name
+    return userStore.firstName
   } ),
   device : computed( () => {
     return appStore.device
   } )
 } )
 
-// 退出登录
 const logout = async() => {
-  await userStore.LOGIN_OUT()
-  router.push( '/login' )
-  window.location.reload()
+  try {
+    const res = await userStore.LOGIN_OUT()
+    window.location.href = res.logoutUrl
+  } catch ( error ) {
+    console.error( 'Logout error:', error )
+    await router.push( '/' )
+  }
 }
 
 const openSettings = () => {
