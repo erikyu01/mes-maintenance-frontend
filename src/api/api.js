@@ -2,14 +2,22 @@
 
 import axios from 'axios'
 import { gotoCognitoLogin } from '@/utils/cognito'
+import { WHITE_LIST } from '@/constants/whiteList'
+
+const WHITELIST_URLS = WHITE_LIST.map( item => `/auth${item}` )
 
 // Base API URL from the .env file
 const API_URL = import.meta.env.VITE_BACKEND_URL
-
 const AUTH_API_URL = import.meta.env.VITE_USER_BACKEND_URL + '/api'
 
-const api = axios.create( {
-  baseURL : API_URL
+export const api = axios.create( { baseURL : API_URL } )
+
+export const authApi = axios.create( {
+  baseURL : AUTH_API_URL,
+  headers : {
+    'Content-Type' : 'application/json'
+  },
+  withCredentials : true
 } )
 
 api.interceptors.response.use(
@@ -20,27 +28,18 @@ api.interceptors.response.use(
   }
 )
 
-export const authApi = axios.create( {
-  baseURL : AUTH_API_URL,
-  headers : {
-    'Content-Type' : 'application/json'
-  },
-  withCredentials : true
-} )
-
-const WHITELIST_URLS = ['/auth/callback', '/auth/refresh', '/auth/logout']
-
 authApi.interceptors.request.use(
   config => {
     const isWhitelisted = WHITELIST_URLS.some( url => config.url.includes( url ) )
-    if ( isWhitelisted ) {
-      console.log( `Request to auth whitelist: ${config.url}` )
+    if ( !isWhitelisted ) {
+      const token = localStorage.getItem( 'access_token' )
+      if ( token ) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
     }
     return config
   },
-  error => {
-    return Promise.reject( error )
-  }
+  error => Promise.reject( error )
 )
 
 authApi.interceptors.response.use(

@@ -23,5 +23,7 @@ selenium-debug.log
 *.sln
 *.local
 
+mock/
+
 #package-lock.json
 #yarn.lock

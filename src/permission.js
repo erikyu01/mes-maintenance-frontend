@@ -3,8 +3,9 @@ import getPageTitle from '@/utils/getPageTitle'
 import { useUserStore, usePermissionStore } from '@/store'
 import NProgress from '@/utils/progress'
 import { gotoCognitoLogin } from '@/utils/cognito'
+import { WHITE_LIST } from '@/constants/whiteList'
 
-const whiteList = ['/callback', '/logout-success', '/refresh']
+const whiteList = WHITE_LIST
 
 router.beforeEach( async( to, from, next ) => {
   NProgress.start()

@@ -62,9 +62,15 @@ const useUserStore = defineStore( {
       try {
         const res = await logout()
         await this.RESET_INFO()
+        localStorage.removeItem( 'access_token' )
+        localStorage.removeItem( 'refresh_token' )
+        localStorage.removeItem( 'id_token' )
         return res.data.data
       } catch ( error ) {
         await this.RESET_INFO()
+        localStorage.removeItem( 'access_token' )
+        localStorage.removeItem( 'refresh_token' )
+        localStorage.removeItem( 'id_token' )
         throw error
       }
     },
@@ -74,6 +80,9 @@ const useUserStore = defineStore( {
         this.$reset()
         resetRouter()
         tagsViewStore.DEL_ALL_VIEWS( null )
+        localStorage.removeItem( 'access_token' )
+        localStorage.removeItem( 'refresh_token' )
+        localStorage.removeItem( 'id_token' )
         resolve()
       } )
     }
